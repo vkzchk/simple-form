@@ -2,6 +2,7 @@ import React from 'react'
 import { Formik, Form, Field } from 'formik'
 import styles from './authForm.module.css'
 import * as Yup from 'yup'
+import * as axios from 'axios'
 
 const validationSchema = Yup.object().shape({
   username: Yup.string().required(),
@@ -11,13 +12,20 @@ const validationSchema = Yup.object().shape({
 })
 
 const getAuthToken = (values) => {
-  fetch('http://mainapi.hsc.gov.ua/auth-server/oauth/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-encoded' },
-    body: `grant_type=password&username=${values.username}&password=${values.password}&client_id=${values.client_id}&client_secret=${values.client_secret}`
-  }
-  )
-    .then(res => console.log(res))
+
+  axios({
+    url: 'http://mainapi.hsc.gov.ua/auth-server/oauth/token',
+    method: 'post',
+    auth: {
+      username: values.client_id,
+      password: values.client_secret
+    },
+    data: `grant_type=password&username=${values.username}&password=${values.password}`,
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    }
+  })
+    .then(res => localStorage.setItem('access_token', res.data.access_token))
     .catch(e => console.log(e))
 }
 
@@ -39,28 +47,28 @@ const Auth = () => {
             <Form className={styles.contactForm} onSubmit={handleSubmit}>
               <label htmlFor="username">username</label>
               <Field name="username"
-                className={touched.requestType && errors.requestType ? styles.hasError : null}
+                className={touched.username && errors.username ? styles.hasError : null}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={values.username}
               />
               <label htmlFor="password">password</label>
               <Field name="password" type="password"
-                className={touched.requestType && errors.requestType ? styles.hasError : null}
+                className={touched.password && errors.password ? styles.hasError : null}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={values.password}
               />
               <label htmlFor="client_id">client_id</label>
               <Field name="client_id"
-                className={touched.requestType && errors.requestType ? styles.hasError : null}
+                className={touched.client_id && errors.client_id ? styles.hasError : null}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={values.client_id}
               />
               <label htmlFor="client_secret">client_secret</label>
               <Field name="client_secret"
-                className={touched.requestType && errors.requestType ? styles.hasError : null}
+                className={touched.client_secret && errors.client_secret ? styles.hasError : null}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={values.client_secret}
