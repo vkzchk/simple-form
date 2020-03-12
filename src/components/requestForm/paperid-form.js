@@ -10,13 +10,13 @@ const validationSchema = Yup.object().shape({
   paperId: Yup.number().required()
 })
 
-const RequestForm = () => {
+const PaperIdForm = () => {
 
   const [isAuth, setAuth] = useState(false)
   const [data, setData] = useState([]);
   const [error, setError] = useState(false)
 
-  const getDataByPapreId = (values) => {
+  const getDataByPaperId = (values) => {
     const accessToken = localStorage.getItem('access_token')
     axios.get(`http://mainapi.hsc.gov.ua/tst-sprlics-service/sprlics/${values.paperId}`, {
       headers: { 'Authorization': `Bearer ${accessToken}` }
@@ -41,7 +41,7 @@ const RequestForm = () => {
         validationSchema={validationSchema}
         onSubmit={(values, { setSubmitting, resetForm }) => {
           setSubmitting(true)
-          getDataByPapreId(values)
+          getDataByPaperId(values)
           resetForm()
           setSubmitting(false)
         }}
@@ -76,6 +76,6 @@ const RequestForm = () => {
   )
 }
 
-export default RequestForm
+export default PaperIdForm
 
 

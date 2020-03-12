@@ -1,0 +1,38 @@
+.header {
+    grid-column: 1 / -1;
+    min-height: 100px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: #282c34;
+   }
+  .nav {
+    display: grid;
+    grid-template-columns: repeat(3, 150px);
+    grid-template-rows: repeat(1, 100px);
+    align-items: stretch;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+
+  .nav li {
+    display: grid;
+    align-items: center;
+  }
+
+  .nav a {
+    color: #fff;
+    text-decoration: none;
+    display: grid;
+    height: 100%;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav a:hover,
+  .nav a.active {
+    background-color: rgba(0,0,0,.2);
+  }
