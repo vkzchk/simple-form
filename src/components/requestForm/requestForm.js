@@ -1,83 +1,81 @@
-import React from 'react'
-import { Formik } from 'formik'
+import React, { useState } from 'react'
+import { Formik, Form, Field } from 'formik'
 import * as Yup from 'yup'
-
+import * as axios from 'axios'
 import styles from './requestForm.module.css'
-
-const uuidv4 = require('uuid/v4')
+import Data from '../data/data'
+import ErrorMessage from '../error/error-message'
 
 const validationSchema = Yup.object().shape({
-  requestId: Yup.string().required(),
-  requestType: Yup.string().required(),
-  requestTime: Yup.string().default(() => new Date()),
-  requestBody: Yup.string().required()
-    .min(3, "Must have at least 3 characters")
-    .max(200, "Must be shorter than 200")
+  paperId: Yup.number().required()
 })
 
+const RequestForm = () => {
 
-const RequestForm = ({ requestTypeArray }) => {
+  const [isAuth, setAuth] = useState(false)
+  const [data, setData] = useState([]);
+  const [error, setError] = useState(false)
 
-  const elements = requestTypeArray.map((item, index) => {
-    return (
-      <option key={index + 1} value={item}>{item}</option>
-    )
-  })
-
-
+  const getDataByPapreId = (values) => {
+    const accessToken = localStorage.getItem('access_token')
+    axios.get(`http://mainapi.hsc.gov.ua/tst-sprlics-service/sprlics/${values.paperId}`, {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    })
+      .then(response => {
+        if (response.status === 200) {
+          setAuth({ isAuth: true })
+          setData(response.data)
+        } else {
+          setError({ error: true })
+        }
+      })
+      .catch(error => {
+        setError({ error: true })
+        setData(error.response)
+      })
+  }
   return (
     <div className={styles.contact}>
       <Formik
-        initialValues={{ requestId: uuidv4(), requestType: "", requestTime: new Date().toJSON(), requestBody: "" }}
+        initialValues={{ paperId: '' }}
         validationSchema={validationSchema}
         onSubmit={(values, { setSubmitting, resetForm }) => {
-          setSubmitting(true);
-          fetch('http://qzwxsdcvfrty.com/myproject/users/simpleform/', {
-            method: 'POST',
-            headers: { "Content-Type": "text/plain" },
-            body: JSON.stringify(values)
-          })
-            .then(res => res.json())
-            .catch(e => console.log(e))
-          resetForm();
-          setSubmitting(false);
+          setSubmitting(true)
+          getDataByPapreId(values)
+          resetForm()
+          setSubmitting(false)
         }}
       >
-        {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
-          <form className={styles.contactForm} onSubmit={handleSubmit}>
-            <label htmlFor="select" style={{ display: 'block' }}>
-              Type:
-            </label>
-            <select
-              name="requestType"
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.requestType || "DEFAULT"}
-              className={touched.requestType && errors.requestType ? styles.hasError : null}
-            >
-              <option value="DEFAULT" disabled>Choose a type...</option>
-              {elements}
-            </select>
-            <br />
-            <label htmlFor="text">Text: </label>
-            <textarea
-              type="text"
-              name="requestBody"
-              placeholder="Write something here.."
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.requestBody}
-              className={touched.requestBody && errors.requestBody ? styles.hasError : null}
-            />
-            <br />
-            <button type="submit" disabled={isSubmitting}>
-              Send
-            </button>
-          </form>
-        )}
+        {
+          ({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
+            <Form className={styles.contactForm} onSubmit={handleSubmit}>
+              <label htmlFor="paperId">PaperId</label>
+              <Field name="paperId"
+                className={touched.paperId && errors.paperId ? styles.hasError : null}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.paperId}
+              />
+              <button
+                type="submit"
+                disabled={isSubmitting}
+              >
+                Get PaperID
+              </button>
+            </Form>
+          )
+        }
       </Formik>
-    </div>
+      {
+        isAuth && <Data data={data} />
+      }
+      {
+        error && <ErrorMessage />
+      }
+    </div >
   )
 }
 
 export default RequestForm
+
+

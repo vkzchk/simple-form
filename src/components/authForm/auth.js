@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Formik, Form, Field } from 'formik'
 import styles from './authForm.module.css'
 import * as Yup from 'yup'
 import * as axios from 'axios'
+import { Redirect } from 'react-router-dom'
+
 
 const validationSchema = Yup.object().shape({
   username: Yup.string().required(),
@@ -11,25 +13,36 @@ const validationSchema = Yup.object().shape({
   client_secret: Yup.string().required()
 })
 
-const getAuthToken = (values) => {
-
-  axios({
-    url: 'http://mainapi.hsc.gov.ua/auth-server/oauth/token',
-    method: 'post',
-    auth: {
-      username: values.client_id,
-      password: values.client_secret
-    },
-    data: `grant_type=password&username=${values.username}&password=${values.password}`,
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    }
-  })
-    .then(res => localStorage.setItem('access_token', res.data.access_token))
-    .catch(e => console.log(e))
-}
 
 const Auth = () => {
+  const [isAuth, setAuth] = useState(false)
+
+  const getAuthToken = (values) => {
+    axios({
+      url: 'http://mainapi.hsc.gov.ua/auth-server/oauth/token',
+      method: 'post',
+      auth: {
+        username: values.client_id,
+        password: values.client_secret
+      },
+      data: `grant_type=password&username=${values.username}&password=${values.password}`,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    })
+      .then(response => {
+        if (response.status === 200) {
+          setAuth({ isAuth: true })
+        }
+        localStorage.setItem('access_token', response.data.access_token)
+      })
+      .catch(e => console.log(e))
+  }
+
+  if (isAuth) {
+    return <Redirect to={'/'} />
+  }
+
   return (
     <div className={styles.contact}>
       <Formik
