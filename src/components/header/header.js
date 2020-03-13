@@ -7,9 +7,11 @@ const Header = () => {
     <header className={styles.header}>
       <nav>
         <ul className={styles.nav}>
-          <li><Link to='/'>PaperID</Link></li>
+          <li><Link to='/'>Home</Link></li>
+          {/* <li><Link to='/paperid'>PaperID</Link></li>
           <li><Link to='/clientid'>ClientID</Link></li>
-         </ul>
+          <li><Link to='/auth'>Auth</Link></li> */}
+        </ul>
       </nav>
     </header>
   )

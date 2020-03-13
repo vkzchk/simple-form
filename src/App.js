@@ -1,10 +1,10 @@
 import React from 'react';
-import './App.css';
+import styles from './App.module.css';
 import Header from './components/header/header'
 
 const App = ({children}) => {
   return (
-    <div>
+    <div className={styles.App}>
       <Header />
       {children}
     </div>
